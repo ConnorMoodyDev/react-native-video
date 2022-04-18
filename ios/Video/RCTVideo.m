@@ -6,6 +6,7 @@
 #include <MediaAccessibility/MediaAccessibility.h>
 #include <AVFoundation/AVFoundation.h>
 
+
 static NSString *const statusKeyPath = @"status";
 static NSString *const playbackLikelyToKeepUpKeyPath = @"playbackLikelyToKeepUp";
 static NSString *const playbackBufferEmptyKeyPath = @"playbackBufferEmpty";
@@ -1014,19 +1015,24 @@ static int const RCTVideoUnset = -1;
 
 - (void)setPreferredMaxResolution:(NSDictionary *) maxResolution {
   // Init as zero. If zero, iOS will automatically select the best resolution.
-   CGSize preferredSize = CGSizeZero;
+  CGSize preferredSize = CGSizeZero;
+  _preferredMaxResolution = maxResolution;
+
+  if([_preferredMaxResolution objectForKey:@"height"] != nil && [_preferredMaxResolution objectForKey:@"width"] != nil) {
+    NSNumber *height = _preferredMaxResolution[@"height"];
+    NSNumber *width = _preferredMaxResolution[@"width"];
+
+    CGFloat h = [height doubleValue];
+    CGFloat w = [width doubleValue];
+    preferredSize = CGSizeMake(h, w);
+  }
   
-   if([maxResolution objectForKey:@"height"] != nil && [maxResolution objectForKey:@"width"] != nil) {
-    preferredSize = CGSizeMake([[maxResolution objectForKey:@"height"] integerValue], [[maxResolution objectForKey:@"width"] integerValue]);
-   }
-  
-    _preferredMaxResolution = maxResolution;
-   _playerItem.preferredMaximumResolution = preferredSize;
-   if(!_paused) {
-     // Pause and resume to apply.
-     [_player pause];
-     [_player play];
-   }
+  _playerItem.preferredMaximumResolution = preferredSize;
+  if(!_paused) {
+    // Pause and resume to apply.
+    [_player pause];
+    [_player play];
+  }
 
 }
 
