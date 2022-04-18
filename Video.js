@@ -440,6 +440,10 @@ Video.propTypes = {
       PropTypes.number,
     ]),
   }),
+  preferredMaxResolution: PropTypes.shape({
+    height: PropTypes.number,
+    width: PropTypes.number
+  }),
   textTracks: PropTypes.arrayOf(
     PropTypes.shape({
       title: PropTypes.string,

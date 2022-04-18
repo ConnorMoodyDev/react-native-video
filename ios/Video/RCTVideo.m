@@ -59,6 +59,7 @@ static int const RCTVideoUnset = -1;
   float _volume;
   float _rate;
   float _maxBitRate;
+  NSDictionary * _preferredMaxResolution;
 
   BOOL _automaticallyWaitsToMinimizeStalling;
   BOOL _muted;
@@ -1011,6 +1012,24 @@ static int const RCTVideoUnset = -1;
   [self applyModifiers];
 }
 
+- (void)setPreferredMaxResolution:(NSDictionary *) maxResolution {
+  // Init as zero. If zero, iOS will automatically select the best resolution.
+   CGSize preferredSize = CGSizeZero;
+  
+   if([maxResolution objectForKey:@"height"] != nil && [maxResolution objectForKey:@"width"] != nil) {
+    preferredSize = CGSizeMake([[maxResolution objectForKey:@"height"] integerValue], [[maxResolution objectForKey:@"width"] integerValue]);
+   }
+  
+    _preferredMaxResolution = maxResolution;
+   _playerItem.preferredMaximumResolution = preferredSize;
+   if(!_paused) {
+     // Pause and resume to apply.
+     [_player pause];
+     [_player play];
+   }
+
+}
+
 - (void)setMuted:(BOOL)muted
 {
   _muted = muted;
@@ -1067,6 +1086,7 @@ static int const RCTVideoUnset = -1;
   [self setPaused:_paused];
   [self setControls:_controls];
   [self setAllowsExternalPlayback:_allowsExternalPlayback];
+  [self setPreferredMaxResolution:_preferredMaxResolution];
 }
 
 - (void)configureAudio
